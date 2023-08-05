@@ -5,14 +5,16 @@ const resetButton = document.getElementById("reset");
 const sessionRadio = document.getElementById("session");
 const breakRadio = document.getElementById("break");
 
-let workDuration = 25;
-let breakDuration = 5;
+let workDuration = 25 * 60;
+let breakDuration = 5 * 60;
 let isSession = true;
 let isRunning = false;
 let timerInterval;
 
 startButton.addEventListener("click", startTimer);
 resetButton.addEventListener("click", resetTimer);
+sessionRadio.addEventListener("click", setSession);
+breakRadio.addEventListener("click", setBreak);
 
 function startTimer() {
   if (!isRunning) {
@@ -24,28 +26,22 @@ function startTimer() {
     isRunning = false;
     startButton.textContent = "Resume";
   }
-  if (minutes === "00" && seconds === "00") {
-    switchSession(); // Call the function to switch between work and break sessions
-    startButton.textContent = "Start"; // Change button text back to 'Start'
-    clearInterval(timerInterval); // Clear the interval after a session completes
-    isRunning = false; // Set the timer's running state to false
-  }
 }
 
 function updateTimer() {
-  let minutes, seconds;
   if (isRunning) {
     if (isSession) {
-      minutes = Math.floor(workDuration / 60);
-      seconds = workDuration % 60;
+      workDuration--;
     } else {
-      minutes = Math.floor(breakDuration / 60);
-      seconds = breakDuration % 60;
+      breakDuration--;
     }
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + minutes : minutes;
+    let minutes = Math.floor((isSession ? workDuration : breakDuration) / 60);
+    let seconds = (isSession ? workDuration : breakDuration) % 60;
 
-    if (minutes === "00" && seconds === "00") {
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    if (minutes === 0 && seconds === 0) {
       switchSession();
     }
 
@@ -57,9 +53,11 @@ function updateTimer() {
 function switchSession() {
   isSession = !isSession;
   if (isSession) {
-    minutesDisplay.textContent = ("0" + workDuration).slice(-2);
+    minutesDisplay.textContent = "25";
+    secondsDisplay.textContent = "00";
   } else {
-    minutesDisplay.textContent = ("0" + breakDuration).slice(-2);
+    minutesDisplay.textContent = "05";
+    secondsDisplay.textContent = "00";
   }
 }
 
@@ -69,9 +67,29 @@ function resetTimer() {
   startButton.textContent = "Start";
 
   if (isSession) {
-    minutesDisplay.textContent = ("0" + workDuration).slice(-2);
+    minutesDisplay.textContent = "25";
+    secondsDisplay.textContent = "00";
   } else {
-    minutesDisplay.textContent = ("0" + breakDuration).slice(-2);
+    minutesDisplay.textContent = "05";
+    secondsDisplay.textContent = "00";
   }
-  secondsDisplay.textContent = "00";
+
+  workDuration = 25 * 60;
+  breakDuration = 5 * 60;
+}
+
+function setSession() {
+  if (!isRunning) {
+    isSession = true;
+    minutesDisplay.textContent = "25";
+    secondsDisplay.textContent = "00";
+  }
+}
+
+function setBreak() {
+  if (!isRunning) {
+    isSession = false;
+    minutesDisplay.textContent = "05";
+    secondsDisplay.textContent = "00";
+  }
 }
